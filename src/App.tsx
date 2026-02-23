@@ -219,8 +219,8 @@ export default function App() {
 
   // Initialize game
   const initGame = useCallback(() => {
-    // Create exactly 100 cards total (from 2 decks)
-    const fullDeck = createDeck(2, 100);
+    // Create exactly 86 cards total (from 2 decks)
+    const fullDeck = createDeck(2, 86);
     const playerHand = sortHand(fullDeck.splice(0, 8));
     const aiHand = fullDeck.splice(0, 8);
     
