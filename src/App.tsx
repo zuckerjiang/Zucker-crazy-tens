@@ -101,8 +101,8 @@ const PlayingCard: React.FC<PlayingCardProps> = ({
       ) : (
         <div className="w-full h-full flex items-center justify-center p-1">
           <div className="w-full h-full border border-white/10 rounded flex items-center justify-center bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/10 to-transparent">
-             <div className="text-white/20 font-bold text-xl sm:text-2xl">
-               8
+             <div className="text-white font-black text-4xl sm:text-5xl drop-shadow-2xl">
+               Z
              </div>
           </div>
         </div>
@@ -190,6 +190,7 @@ export default function App() {
 
   const [pendingEightCard, setPendingEightCard] = useState<Card | null>(null);
   const [customBg, setCustomBg] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sort cards in rainbow order: Red (Hearts) -> Orange (8s) -> Yellow (Diamonds) -> Green (Clubs) -> Blue (Spades)
@@ -418,8 +419,8 @@ export default function App() {
               <span className="text-white font-black text-xl">Z</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white tracking-tight">Crazy 8s</h1>
-              <p className="text-[10px] text-white/60 uppercase tracking-widest font-bold">Zucker Edition</p>
+              <h1 className="text-xl font-bold text-white tracking-tight">Z, Jiang, Crazy Eight</h1>
+              <p className="text-[10px] text-white/60 uppercase tracking-widest font-bold">Classic Edition</p>
             </div>
           </div>
           
