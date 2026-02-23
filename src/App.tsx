@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Trophy, 
@@ -12,10 +12,11 @@ import {
   User, 
   Cpu, 
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Image as ImageIcon
 } from 'lucide-react';
 import { Suit, Rank, Card, GameStatus, GameState } from './types';
-import { createDeck, getSuitSymbol, getSuitColor, SUITS } from './constants';
+import { createDeck, getSuitSymbol, getSuitColor, getSuitBgColor, getSuitName, SUITS } from './constants';
 
 // --- Components ---
 
@@ -25,6 +26,7 @@ interface PlayingCardProps {
   onClick?: () => void;
   isPlayable?: boolean;
   className?: string;
+  backColor?: string;
 }
 
 const PlayingCard: React.FC<PlayingCardProps> = ({ 
@@ -32,7 +34,8 @@ const PlayingCard: React.FC<PlayingCardProps> = ({
   isFaceUp = true, 
   onClick, 
   isPlayable = false,
-  className = "" 
+  className = "",
+  backColor = "bg-gradient-to-b from-red-500 via-orange-500 via-yellow-400 via-green-500 to-blue-500"
 }) => {
   return (
     <motion.div
@@ -44,30 +47,62 @@ const PlayingCard: React.FC<PlayingCardProps> = ({
       onClick={isPlayable ? onClick : undefined}
       className={`
         relative w-20 h-28 sm:w-24 sm:h-36 rounded-lg card-shadow cursor-pointer transition-shadow
-        ${isFaceUp ? 'bg-white' : 'bg-indigo-900 border-2 border-yellow-600'}
+        ${isFaceUp ? (card.rank === Rank.EIGHT ? 'bg-orange-500' : getSuitBgColor(card.suit)) : `${backColor} border-2 border-white/20`}
         ${isPlayable ? 'ring-4 ring-yellow-400 shadow-xl' : ''}
         ${className}
       `}
     >
       {isFaceUp ? (
-        <div className={`flex flex-col justify-between h-full p-2 ${getSuitColor(card.suit)}`}>
-          <div className="flex flex-col items-start leading-none">
-            <span className="text-lg sm:text-xl font-bold">{card.rank}</span>
-            <span className="text-sm sm:text-base">{getSuitSymbol(card.suit)}</span>
-          </div>
-          <div className="flex justify-center items-center text-3xl sm:text-4xl opacity-20">
-            {getSuitSymbol(card.suit)}
-          </div>
-          <div className="flex flex-col items-end leading-none rotate-180">
-            <span className="text-lg sm:text-xl font-bold">{card.rank}</span>
-            <span className="text-sm sm:text-base">{getSuitSymbol(card.suit)}</span>
-          </div>
+        <div className="flex flex-col justify-between h-full p-2 text-black overflow-hidden">
+          {card.rank === Rank.EIGHT ? (
+            <>
+              {/* Top Left Corner */}
+              <div className="flex flex-col items-start leading-none">
+                <span className="text-lg sm:text-xl font-bold">{card.rank}</span>
+                <span className="text-sm sm:text-base">{getSuitSymbol(card.suit)}</span>
+              </div>
+              
+              {/* Middle: Large Shape */}
+              <div className="flex justify-center items-center text-4xl sm:text-5xl opacity-40">
+                {getSuitSymbol(card.suit)}
+              </div>
+              
+              {/* Bottom Left Corner (as requested) */}
+              <div className="flex flex-col items-start leading-none">
+                <span className="text-lg sm:text-xl font-bold">{card.rank}</span>
+                <span className="text-sm sm:text-base">{getSuitSymbol(card.suit)}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Top Left Corner */}
+              <div className="flex flex-col items-start leading-none">
+                <span className="text-lg sm:text-xl font-bold">{card.rank}</span>
+                <span className="text-sm sm:text-base">{getSuitSymbol(card.suit)}</span>
+              </div>
+              
+              {/* Middle: Large Color Name */}
+              <div className={`flex justify-center items-center font-black tracking-tighter text-center leading-none ${
+                getSuitName(card.suit) === 'YELLOW' 
+                  ? 'text-lg sm:text-2xl' 
+                  : 'text-2xl sm:text-3xl'
+              }`}>
+                {getSuitName(card.suit)}
+              </div>
+              
+              {/* Bottom Right Corner */}
+              <div className="flex flex-col items-end leading-none rotate-180">
+                <span className="text-lg sm:text-xl font-bold">{card.rank}</span>
+                <span className="text-sm sm:text-base">{getSuitSymbol(card.suit)}</span>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="w-full h-full flex items-center justify-center p-1">
-          <div className="w-full h-full border border-yellow-600/30 rounded flex items-center justify-center">
-             <div className="text-yellow-500 font-serif font-bold text-[10px] sm:text-xs text-center leading-tight tracking-tighter uppercase transform -rotate-12">
-               Harry<br/>Potter
+          <div className="w-full h-full border border-white/10 rounded flex items-center justify-center bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/10 to-transparent">
+             <div className="text-white/20 font-bold text-xl sm:text-2xl">
+               8
              </div>
           </div>
         </div>
@@ -91,14 +126,14 @@ const SuitPicker = ({ onSelect }: { onSelect: (suit: Suit) => void }) => {
               key={suit}
               onClick={() => onSelect(suit)}
               className={`
-                flex flex-col items-center justify-center p-6 rounded-xl border-2 border-gray-100
-                hover:border-blue-500 hover:bg-blue-50 transition-all group
+                flex flex-col items-center justify-center p-4 rounded-xl border-2 border-gray-100
+                bg-white hover:border-purple-500 hover:bg-purple-50 transition-all group
               `}
             >
-              <span className={`text-5xl mb-2 ${getSuitColor(suit)} group-hover:scale-110 transition-transform`}>
+              <span className={`text-2xl sm:text-3xl font-black mb-2 ${getSuitColor(suit)} group-hover:scale-110 transition-transform`}>
                 {getSuitSymbol(suit)}
               </span>
-              <span className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                 {suit}
               </span>
             </button>
@@ -150,17 +185,44 @@ export default function App() {
     status: 'waiting',
     currentSuit: null,
     winner: null,
-    lastAction: '欢迎来到 Zucker 疯狂 10 点！'
+    lastAction: '欢迎来到 Zucker 疯狂 8 点！'
   });
 
   const [pendingEightCard, setPendingEightCard] = useState<Card | null>(null);
+  const [customBg, setCustomBg] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sort cards in rainbow order: Red (Hearts) -> Orange (8s) -> Yellow (Diamonds) -> Green (Clubs) -> Blue (Spades)
+  const sortHand = (hand: Card[]) => {
+    return [...hand].sort((a, b) => {
+      const getSortValue = (card: Card) => {
+        if (card.rank === Rank.EIGHT) return 1; // Orange
+        switch (card.suit) {
+          case Suit.HEARTS: return 0;   // Red
+          case Suit.DIAMONDS: return 2; // Yellow
+          case Suit.CLUBS: return 3;    // Green
+          case Suit.SPADES: return 4;   // Blue
+          default: return 5;
+        }
+      };
+      
+      const valA = getSortValue(a);
+      const valB = getSortValue(b);
+      
+      if (valA !== valB) return valA - valB;
+      
+      // Secondary sort by rank
+      const ranks = Object.values(Rank);
+      return ranks.indexOf(a.rank) - ranks.indexOf(b.rank);
+    });
+  };
 
   // Initialize game
   const initGame = useCallback(() => {
     // Create exactly 100 cards total (from 2 decks)
     const fullDeck = createDeck(2, 100);
-    const playerHand = fullDeck.splice(0, 10);
-    const aiHand = fullDeck.splice(0, 10);
+    const playerHand = sortHand(fullDeck.splice(0, 8));
+    const aiHand = fullDeck.splice(0, 8);
     
     // Ensure the first discard is not an 8
     let firstDiscardIndex = 0;
@@ -223,7 +285,7 @@ export default function App() {
     
     setGameState(prev => {
       const newHand = player === 'player' 
-        ? [...prev.playerHand, drawnCard] 
+        ? sortHand([...prev.playerHand, drawnCard]) 
         : [...prev.aiHand, drawnCard];
       
       return {
@@ -235,6 +297,17 @@ export default function App() {
         lastAction: `${player === 'player' ? '你' : 'AI'} 摸了一张牌。`
       };
     });
+  };
+
+  const handleBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomBg(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const playCard = (card: Card, player: 'player' | 'ai') => {
@@ -316,28 +389,55 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 bg-slate-950 overflow-hidden relative">
-      {/* Hogwarts Background Image */}
+    <div className="min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 overflow-hidden relative bg-stone-900">
+      {/* Background Image */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="https://images.unsplash.com/photo-1610466024868-910c6e7e8929?auto=format&fit=crop&w=1920&q=80" 
-          alt="Hogwarts Background" 
-          className="w-full h-full object-cover"
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-black/40" />
+        {customBg ? (
+          <img 
+            src={customBg} 
+            alt="Custom Background" 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <img 
+            src="https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=80" 
+            alt="Forbidden City Background" 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        )}
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
       </div>
 
       {/* Header / Info */}
       <div className="w-full max-w-6xl flex justify-between items-center z-10">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
-            <Info size={24} className="text-white/80" />
+          <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20 shadow-xl flex items-center gap-3">
+            <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-black text-xl">Z</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">Crazy 8s</h1>
+              <p className="text-[10px] text-white/60 uppercase tracking-widest font-bold">Zucker Edition</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">Zucker Crazy Tens</h1>
-            <p className="text-xs text-white/60 uppercase tracking-widest">Classic Edition</p>
-          </div>
+          
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/20 text-white transition-all flex items-center gap-2 text-sm font-bold shadow-xl"
+            title="上传自定义背景"
+          >
+            <ImageIcon size={18} />
+            <span className="hidden sm:inline">更换背景</span>
+          </button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleBgUpload} 
+            accept="image/*" 
+            className="hidden" 
+          />
         </div>
 
         <div className="bg-black/30 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 flex items-center gap-4">
@@ -391,17 +491,17 @@ export default function App() {
             className={`
               relative w-20 h-28 sm:w-24 sm:h-36 rounded-lg border-4 border-white/20 cursor-pointer transition-all
               ${gameState.currentTurn === 'player' && gameState.status === 'playing' ? 'hover:scale-105 active:scale-95 ring-4 ring-white/30' : 'opacity-50 grayscale'}
-              bg-blue-900 shadow-2xl
+              bg-gradient-to-b from-red-500 via-orange-500 via-yellow-400 via-green-500 to-blue-500 shadow-2xl
             `}
           >
-            <div className="absolute inset-0 flex items-center justify-center text-white/10 text-4xl">
+            <div className="absolute inset-0 flex items-center justify-center text-white/40 text-4xl font-bold drop-shadow-md">
               ?
             </div>
             {/* Stack effect */}
-            <div className="absolute -top-1 -left-1 w-full h-full bg-blue-800 rounded-lg -z-10 border-2 border-white/10" />
+            <div className="absolute -top-1 -left-1 w-full h-full bg-blue-600 rounded-lg -z-10 border-2 border-white/10" />
             <div className="absolute -top-2 -left-2 w-full h-full bg-blue-700 rounded-lg -z-20 border-2 border-white/10" />
           </div>
-          <span className="text-xs font-bold text-white/40 uppercase tracking-widest">摸牌堆</span>
+          <span className="text-xs font-bold text-white/80 uppercase tracking-widest drop-shadow-sm">摸牌堆</span>
         </div>
 
         {/* Discard Pile */}

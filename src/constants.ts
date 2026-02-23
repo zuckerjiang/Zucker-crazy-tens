@@ -45,13 +45,37 @@ export const getSuitSymbol = (suit: Suit): string => {
   }
 };
 
+export const getSuitName = (suit: Suit): string => {
+  switch (suit) {
+    case Suit.HEARTS: return 'RED';
+    case Suit.DIAMONDS: return 'YELLOW';
+    case Suit.CLUBS: return 'GREEN';
+    case Suit.SPADES: return 'BLUE';
+  }
+};
+
 export const getSuitColor = (suit: Suit): string => {
   switch (suit) {
     case Suit.HEARTS:
+      return 'text-red-500';
     case Suit.DIAMONDS:
-      return 'text-red-600';
+      return 'text-yellow-400';
     case Suit.CLUBS:
+      return 'text-green-500';
     case Suit.SPADES:
-      return 'text-black';
+      return 'text-blue-500';
+  }
+};
+
+export const getSuitBgColor = (suit: Suit): string => {
+  switch (suit) {
+    case Suit.HEARTS:
+      return 'bg-red-500';
+    case Suit.DIAMONDS:
+      return 'bg-yellow-400';
+    case Suit.CLUBS:
+      return 'bg-green-500';
+    case Suit.SPADES:
+      return 'bg-blue-500';
   }
 };

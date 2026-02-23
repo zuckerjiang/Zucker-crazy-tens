@@ -1,5 +1,5 @@
 {
-  "name": "Zucker Crazy Tens",
+  "name": "Zucker Crazy 8s",
   "description": "A classic Crazy Eights card game built with React and Tailwind CSS. Play against a smart AI, use wild 8s to change suits, and be the first to clear your hand!",
   "requestFramePermissions": []
 }
